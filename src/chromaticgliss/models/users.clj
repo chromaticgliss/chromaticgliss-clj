@@ -36,6 +36,9 @@
 (defn for-list [listdata]
   (find-by-id (listdata :user_id)))
 
+(defn for-post [post]
+  (find-by-id (post :user_id)))
+
 (defn find-by-email [email]
   (find-by :email email))
 

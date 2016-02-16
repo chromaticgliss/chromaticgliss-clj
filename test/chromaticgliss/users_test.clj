@@ -3,8 +3,7 @@
         chromaticgliss.test-core)
   (:require [chromaticgliss.models.users :as users]
             [chromaticgliss.entities :as e]
-            [korma.core :as sql]
-            [environ.core :refer [env]]))
+            [korma.core :as sql]))
 
 (use-fixtures :each with-rollback)
 
@@ -54,7 +53,7 @@
       (users/delete-user user-del)
       (is (= (dissoc user-keep :password)
              (users/find-by-id (user-keep :id))))
-      (is (= nil (users/find-by-id (user-del :id)))))))
+      (is (nil? (users/find-by-id (user-del :id)))))))
 
 (deftest authenticate-users
   (let [user (users/create {:name "Sly" :email "sly@falilystone.com" :password "s3cr3t"})

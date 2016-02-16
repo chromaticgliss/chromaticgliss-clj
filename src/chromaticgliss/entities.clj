@@ -25,6 +25,12 @@
                                        :rfk :list_id})
   (entity-fields :id :title :description :created_at))
 
+(defentity posts
+  (pk :id)
+  (table :posts)
+  (belongs-to users {:fk :user_id})
+  (entity-fields :id :title :slug :body :user_id :created_at :updated_at))
+
 (defentity auth-tokens
   (pk :id)
   (table :auth_tokens)
