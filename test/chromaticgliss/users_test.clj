@@ -27,12 +27,13 @@
       (is (= expected-level (:level (users/find-by-id (:id admin))))))))
 
 (deftest multiple-user-operations
+  (let [user-count (users/count-users)]
   (testing "Find all users"
     (doseq [i (range 10)]
       (users/create {:name "Test user"
                      :email (str "user." i "@exampl.com")
                      :password "foo"}))
-    (is (= 10 (count (users/find-all))))))
+    (is (= (+ user-count 10) (count (users/find-all)))))))
 
 (deftest update-users
   (testing "Modifies existing user"

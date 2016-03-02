@@ -33,9 +33,18 @@
     (set-fields (dissoc post :id))
     (where {:id (post :id)})))
 
+(defn update-post-by-slug [post]
+  (update e/posts
+    (set-fields (dissoc post :slug))
+    (where {:slug (post :slug)})))
+
 (defn delete-post [post]
   (delete e/posts
     (where {:id (post :id)})))
+
+(defn delete-post-by-slug [post]
+  (delete e/posts
+    (where {:slug (post :slug)})))
 
 (defn count-posts []
   (let [agg (select :posts

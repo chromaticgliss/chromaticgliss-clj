@@ -1,6 +1,5 @@
 (ns chromaticgliss.db
-  (:use korma.db)
-  (:require [environ.core :refer [env]]))
+  (:use korma.db))
 
 (defdb db (postgres {:db "chromaticgliss"
                      :user "chromaticgliss"

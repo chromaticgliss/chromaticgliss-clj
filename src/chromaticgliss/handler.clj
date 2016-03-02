@@ -10,6 +10,8 @@
             [chromaticgliss.models.users :as users]
             [chromaticgliss.models.lists :as lists]
             [chromaticgliss.models.products :as products]
+            [chromaticgliss.models.posts :as posts]
+            [chromaticgliss.views.main :as views]
             [chromaticgliss.auth :refer [auth-backend user-can user-isa user-has-id authenticated-user unauthorized-handler make-token!]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [buddy.auth.accessrules :refer [restrict]]))
@@ -26,7 +28,7 @@
 (defn create-user [{user :body}]
   (let [new-user (users/create user)]
     {:status 201
-     :headers {"Location" (str "/users/" (:id new-user))}}))
+     :headers {"Location" (str "/api/users/" (:id new-user))}}))
 
 (defn find-user [{{:keys [id]} :params}]
   (response (users/find-by-id (read-string id))))
@@ -38,7 +40,7 @@
 (defn delete-user [{{:keys [id]} :params}]
   (users/delete-user {:id (read-string id)})
   {:status 204
-   :headers {"Location" "/users"}})
+   :headers {"Location" "/api/users"}})
 
 (defn get-lists [_]
   {:status 200
@@ -48,7 +50,7 @@
 (defn create-list [{listdata :body}]
   (let [new-list (lists/create listdata)]
     {:status 201
-     :headers {"Location" (str "/users/" (:user_id new-list) "/lists")}}))
+     :headers {"Location" (str "/api/users/" (:user_id new-list) "/api/lists")}}))
 
 (defn find-list [{{:keys [id]} :params}]
   (response (lists/find-by-id (read-string id))))
@@ -59,13 +61,13 @@
     {:status 404
      :headers {"Location" "/lists"}}
     ((lists/update-list (assoc listdata :id id))
-     {:status 404
-      :headers {"Location" "/lists"}})))
+     {:status 200
+      :headers {"Location" "/api/lists"}})))
 
 (defn delete-list [{{:keys [id]} :params}]
   (lists/delete-list {:id (read-string id)})
   {:status 204
-   :headers {"Location" "/lists"}})
+   :headers {"Location" "/api/lists"}})
 
 (defn get-products [_]
   {:status 200
@@ -75,9 +77,53 @@
 (defn create-product [{product :body}]
   (let [new-prod (products/create product)]
     {:status 201
-     :headers {"Location" (str "/products/" (:id new-prod))}}))
+     :headers {"Location" (str "/api/products/" (:id new-prod))}}))
 
-(defroutes app-routes
+(defn create-post [{post :body}]
+  (let [new-post (posts/create post)]
+    {:status 201
+     :headers {"Location" (str "/api/posts/id/" (:id new-post))}}))
+
+(defn update-post [{{:keys [id]} :params
+                    postdata :body}]
+  (if (nil? id)
+    {:status 404
+     :headers {"Location" "/posts"}}
+    ((posts/update-post (assoc postdata :id id))
+     {:status 200
+      :headers {"Location"  "/api/posts"}})))
+
+(defn update-post-by-slug [{{:keys [slug]} :params
+                    postdata :body}]
+  (if (nil? slug)
+    {:status 404
+     :headers {"Location" "/api/posts"}}
+    ((posts/update-post-by-slug (assoc postdata :slug slug))
+     {:status 200
+      :headers {"Location"  "/api/posts"}})))
+
+(defn delete-post-by-id [{{:keys [id]} :params}]
+  (posts/delete-post {:id (read-string id)})
+  {:status 204
+   :headers {"Location" "/api/posts"}})
+
+(defn delete-post-by-slug [{{:keys [slug]} :params}]
+  (posts/delete-post-by-slug {:slug slug})
+  {:status 204
+   :headers {"Location" "/api/posts"}})
+
+(defn get-posts [_]
+  {:status 200
+   :body {:count (posts/count-posts)
+          :results (posts/find-all)}})
+
+(defn find-post-by-id [{{:keys [id]} :params}]
+   (response (posts/find-by-id (read-string id))))
+
+(defn find-post-by-slug [{{:keys [slug] } :params}]
+  (response (posts/find-by-slug slug)))
+
+(defroutes api-routes
   ;; USERS
   (context "/users" []
     (GET "/" [] (-> get-users
@@ -97,13 +143,14 @@
                             (restrict {:handler {:and [authenticated-user (user-can "manage-users")]}
                                        :on-error unauthorized-handler}))))
 
-  (POST "/sessions" {{:keys [user-id password]} :body}
-    (if (users/password-matches? user-id password)
-      {:status 201
-       :body {:auth-token (make-token! user-id)}}
-      {:status 409
-       :body {:status "error"
-              :message "invalid username or password"}}))
+  (POST "/sessions" {{:keys [email password]} :body}
+    (let [user-id (:id (users/find-by :email email))]
+      (if (users/password-matches? user-id password)
+        {:status 201
+         :body {:auth-token (make-token! user-id)}}
+        {:status 409
+         :body {:status "error"
+                :message "invalid username or password"}})))
 
   ;; LISTS
   (context "/lists" []
@@ -134,6 +181,39 @@
       {:handler {:and [authenticated-user (user-can "manage-products")]}
        :on-error unauthorized-handler}))
 
+  ;; POSTS
+  (context "/posts" []
+    (GET "/" [] get-posts)
+    (POST "/" []
+          (-> create-post
+              (restrict {:handler {:and [authenticated-user (user-can "manage-posts")]}
+                         :on-error unauthorized-handler})))
+    (GET "/id/:id" [id] find-post-by-id)
+    (POST "/id/:id" [id]
+      (-> update-post
+          (restrict {:handler {:and [authenticated-user (user-can "manage-posts")]}
+                     :on-error unauthorized-handler})))
+    (DELETE "/id/:id" [id]
+      (-> delete-post-by-id
+          (restrict {:handler {:and [authenticated-user (user-can "manage-posts")]}
+                     :on-error unauthorized-handler})))
+    (GET "/:slug" [slug] find-post-by-slug)
+    (POST "/:slug" [slug]
+      (-> update-post-by-slug
+          (restrict {:handler {:and [authenticated-user (user-can "manage-posts")]}
+                     :on-error unauthorized-handler})))
+    (DELETE "/:slug" [slug]
+      (-> delete-post-by-slug
+          (restrict {:handler {:and [authenticated-user (user-can "manage-posts")]}
+                     :on-error unauthorized-handler})))))
+
+(defroutes site-routes
+  (GET "/" [] (views/index-page)))
+
+(defroutes app-routes
+  site-routes
+  (context "/api" [] api-routes)
+  (route/resources "/") ;; Implicit "/resources/public"
   (route/not-found (response {:message "Page not found"})))
 
 (defn wrap-log-request [handler]

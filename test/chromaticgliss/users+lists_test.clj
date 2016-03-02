@@ -2,8 +2,7 @@
   (:use clojure.test
         chromaticgliss.test-core)
   (:require [chromaticgliss.models.users :as users]
-            [chromaticgliss.models.lists :as lists]
-            [environ.core :refer [env]]))
+            [chromaticgliss.models.lists :as lists]))
 
 (use-fixtures :each with-rollback)
 

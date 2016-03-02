@@ -19,7 +19,7 @@
     token))
 
 (defn authenticate-token
-  "Validates a token, returning the id of the associated user whne valid an nil otherwise"
+  "Validates a token, returning the id of the associated user when valid an nil otherwise"
   [req token]
   (let [sql (str "SELECT user_id "
                  "FROM auth_tokens "
@@ -40,8 +40,9 @@
 
 (def permissions
   {"manage-lists" #{:chromaticgliss.models.users/user}
+   "manage-posts" #{:chromaticgliss.models.users/user}
    "manage-products" #{:chromaticgliss.models.users/admin}
-   "manage-users" #{:chromaticgliss.models.users/user}})
+   "manage-users" #{:chromaticgliss.models.users/admin}})
 
 (defn authenticated-user [req]
   (if (authenticated? req)
@@ -61,7 +62,7 @@
         (error (str "User of level  (name user-level)  is not authorized for action " (name action)))))))
 
 (defn user-isa
-  "Return a handler that determines whether the authenticated user is of a specific level OR any 
+  "Return a handler that determines whether the authenticated user is of a specific level OR any
   derived level."
   [level]
   (fn [req]
@@ -70,7 +71,7 @@
       (error (str "user is not a(n)" (name level))))))
 
 (defn user-has-id
-  "Retun a handler tha detmines whether the authenticated user has a given ID.
+  "Retun a handler that detmines whether the authenticated user has a given ID.
   This is useful, for example, to determine if the user is the owner of the requested
   resource."
   [id]

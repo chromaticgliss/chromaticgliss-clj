@@ -71,4 +71,26 @@
                               :user_id (user :id)})]
       (posts/delete-post post-del)
       (is (= post-keep (posts/find-by-id (post-keep :id))))
+      (is (nil? (posts/find-by-id (post-del :id))))))
+  (testing "Decreases post count (by slug)"
+    (let [user (users/create {:name "Guuuurl" :email "guuuuuuurl@chiiiiicaaa.com" :password "guurl"})
+          post (posts/create {:title "Worst Post"
+                              :body "This is some terrible content"
+                              :slug "worst-post"
+                              :user_id (user :id)})
+          post-count (posts/count-posts)]
+      (posts/delete-post-by-slug post)
+      (is (= (dec post-count) (posts/count-posts)))))
+  (testing "Deleted correct post (by slug)"
+    (let [user (users/create {:name "Oooold Maaaaan" :email "oldmaaaaaan@brooooo.com" :password "oldmaan"})
+          post-del (posts/create {:title "Bad Old Post"
+                              :body "This is some terrible content"
+                              :slug "bad-old-post"
+                              :user_id (user :id)})
+          post-keep (posts/create {:title "Good Old Post"
+                              :body "This is some terrible content"
+                              :slug "good-old-post"
+                              :user_id (user :id)})]
+      (posts/delete-post-by-slug post-del)
+      (is (= post-keep (posts/find-by-id (post-keep :id))))
       (is (nil? (posts/find-by-id (post-del :id)))))))
