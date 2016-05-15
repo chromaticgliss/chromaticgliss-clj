@@ -31,7 +31,7 @@
 (defn update-post [post]
   (update e/posts
     (set-fields (dissoc post :id))
-    (where {:id (post :id)})))
+    (where {:id (read-string (post :id))})))
 
 (defn update-post-by-slug [post]
   (update e/posts

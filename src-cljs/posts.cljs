@@ -1,38 +1,61 @@
 (ns chromaticgliss.views.posts
   (:require [reagent.core :as r]
+            [clojure.string :refer [join]]
             [ajax.core :refer [GET POST DELETE]]
-            [chromaticgliss.views.forms :refer [input-field]]))
+            [chromaticgliss.views.shared :refer [input-field]]))
 
 (def post-state
-  (r/atom {:posts [{:id 12
-                    :title "Posty McPostPost"
-                    :slug "posty-mcpostpost"
-                    :body "What what, yo yo."
-                    :user_id 347
-                    :created_at "12-12-12"}]}))
+  (r/atom {:posts []}))
 
+(defn handle-error [_]
+  (.log js/console "Error on request"))
+
+(defn restore-post [post-cur]
+  (GET (str "/api/posts/id/" (@post-cur :id)) {:format :json
+                                               :response-format :json
+                                               :keywords? true
+                                               :params @post-cur
+                                               :handler #(swap! post-cur assoc :editing? false)
+                                               :error-handler handle-error}))
+
+(defn save-post [post-cur]
+  (POST (str "/api/posts/id/" (@post-cur :id))  {:format :json
+                                                 :response-format :json
+                                                 :keywords? true
+                                                 :params  (select-keys @post-cur [:title :slug :body])
+                                                 :handler #(swap! post-cur assoc :editing? false)
+                                                 :error-handler #(restore-post post-cur)}))
+
+(defn confirm-delete [post-cur] )
 
 (defn post-editor [post-cur]
-  [:form
+  [:form {:id (str "post-editor-" (@post-cur :id)) :class "post-editor"}
    [input-field post-cur "text" "Title: " :title]
    [input-field post-cur "text" "Slug: " :slug]
-   [input-field post-cur "textarea" "Body: " :body]
+   [markdown-editor post-cur "Body: " :body]
    [:input {:type "hidden"  :value (@post-cur :id)}]
-   [:button {:type "button" :on-click #(POST "/api/posts" @post-cur)} "Save"]])
+   [:button {:type "button" :on-click #(save-post post-cur)} "Save"]
+   [:button {:type "button" :on-click #(restore-post post-cur)} "Cancel"]])
 
-(defn post-component [post]
-  [:div {:class "post" :id (post :id)}
-   [:h1 (post :title)]
-   [:div {:class "body"} (post :body)]
-   [:div {:class "author"} (str "author: " (post :user_id))]
-   [:div {:class "date"} (post :created_at)]])
+(defn post-component [post-cur]
+  [:div {:id (str "post-"(@post-cur :id)) :class "post"}
+   [:h1 (@post-cur :title)]
+   [:div {:class "body"} (@post-cur :body)]
+   [:div {:class "author"} (str "author: " (@post-cur :user_id))]
+   [:div {:class "date"} (@post-cur :created_at)]
+   [:button {:type "button" :on-click #(swap! post-cur assoc :editing? true)} "Edit"]
+   [:button {:type "button" :on-click #(confirm-delete post-cur)} "Delete"]])
 
 (defn post-lister [posts]
   [:div {:id "all_posts"}
-    (for [post posts]
-        ^{:key (post :id)} [post-component post])])
+    (for [[i post] (map vector (iterate inc 0) @posts)]
+      (if (post :editing?)
+        ^{:key (str (post :id) "-ed")} [post-editor (r/cursor posts [i])]
+        ^{:key (post :id)} [post-component (r/cursor posts [i])]))])
 
 (defn ^:export render-posts []
-  ;; (swap! post-state assoc :posts (GET "/api/posts"))
-  (.log js/console  (clj->js @post-state))
-  (r/render [post-editor (r/cursor post-state [:posts 0])] (.getElementById js/document "app")))
+  (GET "/api/posts" {:format :json
+                     :response-format :json
+                     :keywords? true
+                     :handler #(swap! post-state assoc :posts (% :results))})
+  (r/render [post-lister (r/cursor post-state [:posts])] (.getElementById js/document "app")))

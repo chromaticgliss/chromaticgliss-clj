@@ -33,6 +33,7 @@
 (defn unauthorized-handler [req msg]
   {:status 401
    :body {:status :error
+          :success false
           :message (or msg "User not authorized")}})
 
 (def auth-backend (token-backend {:authfn authenticate-token

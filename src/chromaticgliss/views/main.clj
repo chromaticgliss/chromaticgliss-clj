@@ -17,7 +17,7 @@
           (header-section)
           [:div {:id "app"}]
           (include-js "/js/core.js")
-          [:script "chromaticgliss.views.login.render_login();"]]))
+          [:script "chromaticgliss.views.posts.render_posts();"]]))
 
 (defn index-page []
   (html5

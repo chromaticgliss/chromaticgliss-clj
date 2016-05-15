@@ -10,6 +10,7 @@
                  [cljs-ajax "0.5.3"]
                  [compojure "1.4.0"]
                  [crypto-random "1.2.0"]
+                 [garden "1.3.2"]
                  [hiccup "1.0.5"]
                  [korma "0.4.2"]
                  [org.postgresql/postgresql "9.4-1203-jdbc41"]
@@ -43,7 +44,6 @@
   :profiles
   {:repl {:plugins [[cider/cider-nrepl "0.10.2"]]}
    :dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [org.clojure/tools.nrepl "0.2.10"]
                         [ring/ring-mock "0.3.0"]]
          :source-paths ["src-cljs"]}
    :test {:ragtime {:database "jdbc:postgresql://localhost:5432/chromaticgliss?user=chromaticgliss&password=password"}}})
