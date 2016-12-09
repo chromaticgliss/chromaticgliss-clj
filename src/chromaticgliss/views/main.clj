@@ -2,10 +2,17 @@
   (:use hiccup.core
         hiccup.page))
 
+(defn css-includes []
+  (html
+    (include-css "//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css")
+    (include-css "/css/material-design-iconic-font.min.css")
+    (include-css "/css/re-com.css")
+    (include-css "/css/core.css")))
+
 (defn head-section []
   (html [:head
           [:meta {:charset "utf-8"}]
-          (include-css "/css/core.css")
+          (css-includes)
           [:title "(chromaticgliss \"code\" \"music\" \"math\")"]]))
 
 (defn header-section []
