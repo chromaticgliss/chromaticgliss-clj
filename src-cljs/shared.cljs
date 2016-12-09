@@ -1,6 +1,16 @@
 (ns chromaticgliss.views.shared
   (:require [reagent.core :as r]
+            [garden.core :refer [css]]
             [ajax.core :refer [GET POST DELETE]]))
+
+(defn modal-window [prefix comp fn & args]
+  [:div {:id (str prefix "overlay") :class "overlay" :style {:display "none"}}
+   [:div {:id (str prefix "modal") :class "modal"}
+    (comp)
+    [:button {:type "button" :on-click #(close-modal %)} "Okay"]
+    [:button {:type "button" :on-click #(swap! modal-show false) } "Cancel"]]])
+
+(defn close-modal [])
 
 (defn input-field
   ([cur type label field]

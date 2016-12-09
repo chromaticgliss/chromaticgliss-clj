@@ -8,6 +8,7 @@
 
 (defn show-login []
   (session/swap! assoc-in [:login :show?] true))
+  ;(js/console.log (clj->js (session/get :login))))
 
 (defn hide-login []
   (session/swap! assoc-in [:login :show?] false))
@@ -51,11 +52,21 @@
 
 (defn login-modal []
   "Modal for logging in to edit posts/pages/etc"
-  (fn []
-    (when (session/get-in [:login :show?])
-      [modal-panel :backdrop-color "grey"
-                   :backdrop-opacity 0.4
-                   :child [login-form]])))
+  (let [shared-state (r/atom false)]
+    (fn []
+      (when (@shared-state :show-login?)
+          [modal-panel :backdrop-color "grey"
+                      :backdrop-opacity 0.4
+                      :child [login-form]]))))
+
+(defn show-login []
+  (print "showloginnnnnnnnnnnnnn"))
 
 (defn is-logged-in []
-  (:token session-storage))
+  (print "isloggedinnnnnnnnn"))
+
+
+(defn ^:export render-login []
+  (swap! default-interceptors (partial cons login-auth-interceptor))
+  (.log js/console  (clj->js (session/get :login)))
+  (r/render [login-form] (.getElementById js/document "app")))

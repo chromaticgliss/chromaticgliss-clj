@@ -12,6 +12,13 @@
 (defn handle-error [_]
   (.log js/console "Error on request"))
 
+(defn restore-post [post-cur]
+  (GET (str "/api/posts/id/" (@post-cur :id)) {:format :json
+                                               :response-format :json
+                                               :keywords? true
+                                               :params @post-cur
+                                               :handler #(swap! post-cur assoc :editing? false)
+                                               :error-handler handle-error}))
 
 (defn restore-post [post]
   (GET (str "/api/posts/id/" (@post :id))
@@ -22,6 +29,7 @@
         :handler #(swap! post assoc :editing? false)
         :error-handler handle-error}))
 
+(defn confirm-delete [post-cur] )
 
 (defn save-post [post]
   (POST (str "/api/posts/id/" (@post :id))
