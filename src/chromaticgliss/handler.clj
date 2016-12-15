@@ -10,7 +10,7 @@
             [chromaticgliss.models.users :as users]
             [chromaticgliss.models.posts :as posts]
             [chromaticgliss.views.main :as views]
-            [chromaticgliss.auth :refer [auth-backend user-can user-isa user-has-id authenticated-user unauthorized-handler make-token!]]
+            [chromaticgliss.auth :refer [auth-backend authenticate-token user-can user-isa user-has-id authenticated-user unauthorized-handler make-token!]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [buddy.auth.accessrules :refer [restrict]]))
 
@@ -93,7 +93,7 @@
   (response (posts/find-by-slug slug)))
 
 (defroutes api-routes
-  ;; USERS
+  ;; Users
   (context "/users" []
     (GET "/" [] (-> get-users
                     (restrict {:handler {:and [authenticated-user (user-can "manage-users")]}
@@ -111,16 +111,26 @@
                             (restrict {:handler {:and [authenticated-user (user-can "manage-users")]}
                                        :on-error unauthorized-handler}))))
 
-  (POST "/sessions" {{:keys [email password]} :body}
-    (let [user-id (:id (users/find-by :email email))]
-      (if (users/password-matches? user-id password)
-        {:status 201
-         :body {:auth-token (make-token! user-id)}}
-        {:status 409
-         :body {:status "error"
-                :message "invalid username or password"}})))
+  ;; Auth for frontend
+  (context "/sessions" []
+    (GET "/" {{:keys [token]} :body}
+      (let [user-id (authenticate-token {} token)]
+         (if user-id
+           {:status 201
+            :body {:id user-id}}
+           {:status 409
+            :body {:status "error"
+                   :message "expired or invalid auth token"}})))
+    (POST "/" {{:keys [email password]} :body}
+      (let [user-id (:id (users/find-by :email email))]
+        (if (users/password-matches? user-id password)
+            {:status 201
+             :body {:auth-token (make-token! user-id)}}
+            {:status 409
+             :body {:status "error"
+                    :message "invalid username or password"}}))))
 
-  ;; POSTS
+  ;; Posts
   (context "/posts" []
     (GET "/" [] get-posts)
     (POST "/" []
@@ -151,8 +161,8 @@
 
 (defroutes app-routes
   site-routes
-  (context "/api" [] api-routes)
   (route/resources "/") ;; Implicit "/resources/public"
+  (context "/api" [] api-routes)
   (route/not-found (response {:success false
                               :message "Page not found"})))
 

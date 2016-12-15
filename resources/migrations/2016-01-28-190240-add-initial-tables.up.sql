@@ -10,6 +10,7 @@ CREATE TABLE users (
        id    serial PRIMARY KEY,
        name  varchar(60) NOT NULL CHECK (name <> ''),
        email varchar(60) NOT NULL UNIQUE,
+       auth_level varchar(12) NOT NULL DEFAULT 'user'
        password_digest varchar(162) NOT NULL
        created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
        updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP

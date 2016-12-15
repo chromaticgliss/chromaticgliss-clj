@@ -5,8 +5,4 @@
             [chromaticgliss.views.posts :refer [post-lister]]))
 
 (defn ^:export render-posts []
-  (GET "/api/posts" {:format :json
-                     :response-format :json
-                     :keywords? true
-                     :handler #(session/swap! assoc :posts (% :results))})
-  (r/render [post-lister (.getElementById js/document "app")]))
+  (r/render [post-lister] (.getElementById js/document "app")))

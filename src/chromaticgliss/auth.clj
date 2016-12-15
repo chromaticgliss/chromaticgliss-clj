@@ -40,9 +40,8 @@
                                   :unauthorized-handler unauthorized-handler}))
 
 (def permissions
-  {"manage-lists" #{:chromaticgliss.models.users/user}
-   "manage-posts" #{:chromaticgliss.models.users/user}
-   "manage-products" #{:chromaticgliss.models.users/admin}
+  {"manage-posts" #{:chromaticgliss.models.users/user}
+   "manage-pages" #{:chromaticgliss.models.users/admin}
    "manage-users" #{:chromaticgliss.models.users/admin}})
 
 (defn authenticated-user [req]
@@ -56,7 +55,7 @@
    that action."
   [action]
   (fn [req]
-    (let [user-level (get-in req [:identity :level])
+    (let [user-level (get-in req [:identity :auth_level])
           required-levels (get permissions action #{})]
       (if (some #(isa? user-level %) required-levels)
         (success)
@@ -67,7 +66,7 @@
   derived level."
   [level]
   (fn [req]
-    (if (isa? (get-in req [:identity :level]) level)
+    (if (isa? (get-in req [:identity :auth_level]) level)
       (success)
       (error (str "user is not a(n)" (name level))))))
 

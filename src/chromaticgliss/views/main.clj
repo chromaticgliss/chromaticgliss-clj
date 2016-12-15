@@ -16,15 +16,17 @@
           [:title "(chromaticgliss \"code\" \"music\" \"math\")"]]))
 
 (defn header-section []
-  (html [:h1 "(chromaticgliss \"code\" \"music\" \"math\")"]
-        [:p "I'm not your run-of-the-mill codeslinger. My code's got guts, young'n."]))
+  (html [:header {:id "main-header"}
+         [:h1 "(chromaticgliss \"code\" \"music\" \"math\")"]
+         [:p "I'm not your run-of-the-mill codeslinger. My code's got guts, young'n."]]))
 
 (defn body-section []
   (html [:body
+         [:div {:id "main-wrapper"}
           (header-section)
           [:div {:id "app"}]
           (include-js "/js/core.js")
-          [:script "chromaticgliss.views.posts.render_posts();"]]))
+          [:script "chromaticgliss.core.render_posts();"]]]))
 
 (defn index-page []
   (html5

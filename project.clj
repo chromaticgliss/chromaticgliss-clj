@@ -4,6 +4,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
+                 [org.clojure/tools.nrepl "0.2.12"]
                  [buddy/buddy-hashers "1.1.0"]
                  [buddy/buddy-auth "1.3.0"]
                  [cheshire "5.6.3"]
@@ -22,12 +23,15 @@
                  [ring/ring-json "0.4.0"]
                  [ring/ring-mock "0.3.0"]]
   :plugins [[lein-ring "0.9.7"]
-            [lein-cljsbuild "1.1.2"]]
+            [lein-cljsbuild "1.1.5"]]
 
+  :clean-targets ^{:protect false}
+    [:target-path
+        [:cljsbuild :builds :core :compiler :output-dir]
+        [:cljsbuild :builds :core :compiler :output-to]]
 
   :ring {:handler chromaticgliss.handler/app
-         :nrepl {:start? true
-                 :port 9998}
+         :nrepl {:start? true}
          :auto-reload? true
          :auto_refresh true}
 
@@ -38,15 +42,22 @@
 
   :cljsbuild {:builds [{:id "core"
                         :source-paths ["src-cljs"]
-                        :compiler {:output-to "resources/public/js/core.js"
+                        :figwheel true
+                        :compiler {:main chromaticgliss.core
+                                   :asset-path "js"
+                                   :output-to "resources/public/js/core.js"
                                    :output-dir "resources/public/js/"
-                                   :optimizations :whitespace
-                                   :source-map "resources/public/js/core.js.map"}}]}
-  :figwheel {}
+                                   :optimizations :none
+                                   :source-map true}}]}
 
-  :profiles
-  {:repl {:plugins [[cider/cider-nrepl "0.10.2"]]}
-   :dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring/ring-mock "0.3.0"]]
-         :source-paths ["src-cljs"]}
-   :test {:ragtime {:database "jdbc:postgresql://localhost:5432/chromaticgliss?user=chromaticgliss&password=password"}}})
+  :figwheel {:css-dirs ["resources/public/css"]}
+
+  :profiles {:dev  {:dependencies [[javax.servlet/servlet-api "2.5"]
+                                   [com.cemerick/piggieback "0.2.1"]
+                                   [figwheel-sidecar "0.5.8"]
+                                   [ring/ring-mock "0.3.0"]]
+                    :plugins [[lein-figwheel "0.5.8"]]
+                    :repl {:plugins [[cider/cider-nrepl "0.14.0"]]}
+                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+                    :source-paths ["src-cljs"]}
+             :test {:ragtime {:database "jdbc:postgresql://localhost:5432/chromaticgliss?user=chromaticgliss&password=password"}}})
