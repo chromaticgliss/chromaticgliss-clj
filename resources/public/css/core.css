@@ -1,8 +1,54 @@
 #main-wrapper {
     width: 50%;
+    min-width: 40em;
     margin: 5em auto;
 }
 
 #main-wrapper h1 {
     color: #4f0770;
+    font-family: Iconsolata, Monospace;
+}
+
+#login-form {
+    height: 16em;
+    width: 24em;
+}
+
+#login-form .input-container {
+    display: block;
+    height: 5em;
+    margin: 1em;
+}
+
+#login-form .input-container label {
+    font-family: Iconsolata, Monospace;
+    font-size: 1.2em;
+    color: #4f0770;
+    width: 5.5em;
+}
+
+#login-form .input-container input {
+    font-family: Iconsolata, Monospace;
+    font-size: 1.2em;
+    color: #4f0770;
+    width: 18.5em;
+    height: 2.5em;
+    padding: .5em;
+    border: 1px #444 solid;
+    box-shadow: 3px 3px 3px #AAA;
+}
+
+#login-form .login-buttons {
+    padding-left: .6em;
+    display: relative;
+}
+
+#login-form .login-buttons button {
+    font-family: Iconsolata, Monospace;
+    font-size: 1.2em;
+    color: #4f0770;
+    height: 2.5em;
+    padding: .5em;
+    margin: .3em;
+    box-shadow: 3px 3px 3px #AAA;
 }

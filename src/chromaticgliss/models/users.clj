@@ -59,6 +59,15 @@
                           with-str-level))
     (where {:id (user :id)})))
 
+(defn update-password [user]
+  (update e/users
+          (set-fields (-> user
+                          (select-keys [:password :level])
+                          (assoc :password_digest (hashers/encrypt (:password user)))
+                          (dissoc :password)
+                          with-str-level))
+    (where {:id (user :id)})))
+
 (defn count-users []
   (let [agg (select :users
                     (aggregate (count :*) :cnt))]
