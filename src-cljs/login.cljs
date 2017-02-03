@@ -2,12 +2,12 @@
   (:require [reagent.core :as r]
             [reagent.session :as session]
             [re-com.modal-panel :refer [modal-panel]]
-            [ajax.core :refer [GET POST DELETE default-interceptors to-interceptor]]
-            [chromaticgliss.views.shared :refer [input-field]]))
+            [ajax.core :refer [GET POST DELETE to-interceptor]]
+            [chromaticgliss.views.shared :refer [input-field]]
+            [hodgepodge.core :refer [session-storage clear!]]))
 
 (defn show-login []
   (session/swap! assoc-in [:login :show?] true))
-  ;(js/console.log (clj->js (session/get :login))))
 
 (defn hide-login []
   (session/swap! assoc-in [:login :show?] false))
@@ -17,20 +17,20 @@
 
 (def login-auth-interceptor
   (to-interceptor {:name "Authorization Interceptor"
-                   :request #(assoc % :headers {"Authorization" (str "Token "(session/get-in [:login :token]))})}))
+                   :request #(assoc % :headers {"Authorization" (str "Token "(:login session-storage))})}))
 
 (defn login-session []
   (POST "/api/sessions" {:format :json
                          :response-format :json
                          :keywords? true
                          :params (session/get! :login)
-                         :handler #(session/assoc-in! [:login :token] (% :auth-token))}))
+                         :handler #(assoc! session-storage :token (% :auth-token))}))
 
 (defn get-session []
   (GET "/api/sessions" {:format :json
                          :response-format :json
                          :keywords? true
-                         :params (session/get :login)
+                         :params (:login session-storage)
                          :handler identity}))
 
 (defn login-form []
@@ -55,10 +55,4 @@
 
 
 (defn is-logged-in []
-  (session/get-in [:login :token]))
-
-
-(defn ^:export render-login []
-  (swap! default-interceptors (partial cons login-auth-interceptor))
-  (.log js/console  (clj->js (session/get :login)))
-  (r/render [login-form] (.getElementById js/document "app")))
+  (:token session-storage))

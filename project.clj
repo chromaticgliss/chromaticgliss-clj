@@ -12,6 +12,7 @@
                  [compojure "1.5.1"]
                  [crypto-random "1.2.0"]
                  [hiccup "1.0.5"]
+                 [funcool/hodgepodge "0.1.4"]
                  [korma "0.4.3"]
                  [org.postgresql/postgresql "9.4.1212"]
                  [ragtime "0.6.2"]
@@ -21,7 +22,8 @@
                  [ring/ring-defaults "0.2.1"]
                  [ring/ring-jetty-adapter "1.5.0"]
                  [ring/ring-json "0.4.0"]
-                 [ring/ring-mock "0.3.0"]]
+                 [ring/ring-mock "0.3.0"]
+                 [secretary "1.2.3"]]
   :plugins [[lein-ring "0.9.7"]
             [lein-cljsbuild "1.1.5"]]
 

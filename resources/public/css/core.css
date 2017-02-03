@@ -1,3 +1,9 @@
+.clearfix:after {
+     content: "";
+     display: table;
+     clear: both;
+}
+
 #main-wrapper {
     width: 50%;
     min-width: 40em;
@@ -7,6 +13,62 @@
 #main-wrapper h1 {
     color: #4f0770;
     font-family: Iconsolata, Monospace;
+}
+
+button {
+    font-family: Iconsolata, Monospace;
+    font-size: 1.2em;
+    color: #4f0770;
+    height: 2.5em;
+    padding: .5em;
+    margin: .3em;
+    box-shadow: 3px 3px 3px #AAA;
+}
+
+.post-editor .input-container {
+    display: block;
+    height: 5em;
+    margin: 1em;
+}
+
+.post-editor .markdown-container {
+    display: block;
+    height: 42em;
+    margin: 1em;
+}
+
+.post-editor input {
+    font-family: Iconsolata, Monospace;
+    font-size: 1.2em;
+    color: #4f0770;
+    width: 18.5em;
+    height: 2.5em;
+    padding: .5em;
+    border: 1px #444 solid;
+    box-shadow: 3px 3px 3px #AAA;
+}
+
+.post-editor label {
+    font-family: Iconsolata, Monospace;
+    font-size: 1.2em;
+    display: block;
+    float: left;
+    color: #4f0770;
+    width: 5.5em;
+}
+
+.post-editor textarea {
+    width: 30em;
+    height: 40em;
+    padding: .5em;
+    border: 1px #444 solid;
+    box-shadow: 3px 3px 3px #AAA;
+}
+
+.confirm-delete-dialog {
+    display: block;
+    height: 7em;
+    margin: 1em;
 }
 
 #login-form {
@@ -43,12 +105,3 @@
     display: relative;
 }
 
-#login-form .login-buttons button {
-    font-family: Iconsolata, Monospace;
-    font-size: 1.2em;
-    color: #4f0770;
-    height: 2.5em;
-    padding: .5em;
-    margin: .3em;
-    box-shadow: 3px 3px 3px #AAA;
-}

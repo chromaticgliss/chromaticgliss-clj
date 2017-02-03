@@ -15,9 +15,9 @@
 ;; TODO add md processing
 (defn markdown-editor
   ([cur label field]
-    (markdown-editor cur label field #(swap! cur assoc field (-> % .-target .-value))))
+   (markdown-editor cur label field #(swap! cur assoc field (-> % .-target .-value))))
   ([cur label field fn]
-    [:div
-      [:label label]
-      [:textarea {:value (@cur field)
-                  :on-change fn}]]))
+   [:div {:class "markdown-container"}
+    [:label label]
+    [:textarea {:value (@cur field)
+                :on-change fn}]]))

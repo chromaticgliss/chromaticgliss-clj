@@ -4,17 +4,24 @@
 
 (defn find-all []
   "Find all posts"
-  (select e/posts))
+  (some-> (select e/posts)
+          (with e/users)
+          (fields :id :title :slug :body :user_id :created_at :updated_at :users.name :users.email)))
+
 
 (defn find-all-by-user [user]
   "Find all posts by a given user"
-  (some-> (select* e/posts)
+  (some-> (select e/posts)
+          (with e/users)
+          (fields :id :title :slug :body :user_id :created_at :updated_at :users.name :users.email)
           (where {:user_id (user :id)})
           select))
 
 (defn find-by [field value]
   "Find all posts where the given field matches a given value"
-  (some-> (select* e/posts)
+  (some-> (select e/posts)
+          (with e/users)
+          (fields :id :title :slug :body :user_id :created_at :updated_at :users.name :users.email)
           (where {field value})
           (limit 1)
           select
