@@ -53,6 +53,11 @@
     (set-fields (dissoc post :slug))
     (where {:slug (post :slug)})))
 
+(defn update-post-by-slug [post]
+  (update e/posts
+    (set-fields (dissoc post :slug))
+    (where {:slug (post :slug)})))
+
 (defn delete-post [post]
   "Delete post. Map of params must supply id of post to edit."
   (delete e/posts
@@ -68,3 +73,5 @@
   (let [agg (select :posts
                     (aggregate (count :*) :cnt))]
     (get (first agg) :cnt)))
+
+

@@ -8,6 +8,8 @@
             [ring.util.response :refer [response]]
             [cheshire.generate :refer [add-encoder]]
             [chromaticgliss.models.users :as users]
+            [chromaticgliss.models.lists :as lists]
+            [chromaticgliss.models.products :as products]
             [chromaticgliss.models.posts :as posts]
             [chromaticgliss.views.main :as views]
             [chromaticgliss.auth :refer [auth-backend authenticate-token user-can user-isa user-has-id authenticated-user unauthorized-handler make-token!]]
@@ -33,11 +35,52 @@
 (defn find-user [{{:keys [id]} :params}]
   (response (users/find-by-id (read-string id))))
 
+(defn lists-for-user [{{:keys [id]} :params}]
+  (response
+   (map #(dissoc % :user_id) (lists/find-all-by :user_id (read-string id)))))
+
 (defn delete-user [{{:keys [id]} :params}]
   (users/delete-user {:id (read-string id)})
   {:status 204
    :body {:success true}
    :headers {"Location" "/api/users"}})
+
+(defn get-lists [_]
+  {:status 200
+   :body {:count (lists/count-lists)
+          :results (lists/find-all)}})
+
+(defn create-list [{listdata :body}]
+  (let [new-list (lists/create listdata)]
+    {:status 201
+     :headers {"Location" (str "/api/users/" (:user_id new-list) "/api/lists")}}))
+
+(defn find-list [{{:keys [id]} :params}]
+  (response (lists/find-by-id (read-string id))))
+
+(defn update-list [{{:keys [id]} :params
+                    listdata :body}]
+  (if (nil? id)
+    {:status 404
+     :headers {"Location" "/lists"}}
+    ((lists/update-list (assoc listdata :id id))
+     {:status 200
+      :headers {"Location" "/api/lists"}})))
+
+(defn delete-list [{{:keys [id]} :params}]
+  (lists/delete-list {:id (read-string id)})
+  {:status 204
+   :headers {"Location" "/api/lists"}})
+
+(defn get-products [_]
+  {:status 200
+   :body {:count (products/count-products)
+          :results (products/find-all)}})
+
+(defn create-product [{product :body}]
+  (let [new-prod (products/create product)]
+    {:status 201
+     :headers {"Location" (str "/api/products/" (:id new-prod))}}))
 
 (defn create-post [{post :body}]
   (let [new-post (posts/create post)]

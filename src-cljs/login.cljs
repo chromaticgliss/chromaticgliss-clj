@@ -19,6 +19,10 @@
   (to-interceptor {:name "Authorization Interceptor"
                    :request #(assoc % :headers {"Authorization" (str "Token "(:login session-storage))})}))
 
+(def login-auth-interceptor
+  (to-interceptor {:name "Authorization Interceptor"
+                   :request #(assoc % :headers {"Authorization" (str "Token "(@login-state :token))})}))
+
 (defn login-session []
   (POST "/api/sessions" {:format :json
                          :response-format :json
@@ -52,7 +56,6 @@
       [modal-panel :backdrop-color "grey"
                    :backdrop-opacity 0.4
                    :child [login-form]])))
-
 
 (defn is-logged-in []
   (:token session-storage))

@@ -11,7 +11,9 @@
                  [cljs-ajax "0.5.8"]
                  [compojure "1.5.1"]
                  [crypto-random "1.2.0"]
+                 [garden "1.3.2"]
                  [hiccup "1.0.5"]
+                 [com.layerware/hugsql "0.4.7"]
                  [funcool/hodgepodge "0.1.4"]
                  [korma "0.4.3"]
                  [org.postgresql/postgresql "9.4.1212"]
@@ -30,7 +32,7 @@
   :clean-targets ^{:protect false}
     [:target-path
         [:cljsbuild :builds :core :compiler :output-dir]
-        [:cljsbuild :builds :core :compiler :output-to]]
+
 
   :ring {:handler chromaticgliss.handler/app
          :nrepl {:start? true}
